@@ -1,6 +1,5 @@
 export interface TscribeOptions {
   src: string;
-  out?: string;
   zip?: string;
   ext: string;
   ignore: string;
@@ -9,7 +8,6 @@ export interface TscribeOptions {
   sort: "alpha" | "path" | "mtime";
   list?: boolean;
   watch?: boolean;
-  transform?: string;
   quiet?: boolean;
   verbose?: boolean;
 }

@@ -1,8 +1,7 @@
 import { applySort, tscribe } from "../src/core";
-import fs from "fs";
-import path from "path";
+import * as fs from "fs";
+import * as path from "path";
 
-// Use project root temp directories so Jest won't pick them up as tests
 const ROOT = process.cwd();
 
 describe("applySort", () => {
@@ -57,11 +56,11 @@ describe("tscribe integration", () => {
       format: "plain",
       sort: "path",
       list: true,
-      quiet: true,
     });
 
     expect(logSpy).toHaveBeenCalledWith(expect.any(String));
     logSpy.mockRestore();
+
     await fs.promises.rm(base, { recursive: true, force: true });
   });
 
@@ -79,81 +78,19 @@ describe("tscribe integration", () => {
       format: "plain",
       sort: "alpha",
       zip: zipPath,
-      quiet: true,
     });
 
     expect(fs.existsSync(zipPath)).toBe(true);
     await fs.promises.rm(base, { recursive: true, force: true });
   });
-
-  it("applies a valid transform module", async () => {
-    const base = path.join(ROOT, "__temp_transform__");
-    const transformPath = path.join(base, "transform.cjs");
-    const filePath = path.join(base, "test.ts");
-    const outPath = path.join(base, "out.txt");
-
-    await fs.promises.mkdir(base, { recursive: true });
-    await fs.promises.writeFile(filePath, "const x = 42;");
-    await fs.promises.writeFile(
-      transformPath,
-      `module.exports = (t) => t.replace(/42/, "99");`
-    );
-
-    await tscribe({
-      src: base,
-      ext: "ts",
-      out: outPath,
-      transform: transformPath,
-      ignore: "",
-      quiet: true,
-      format: "plain",
-      sort: "path",
-    });
-
-    const result = await fs.promises.readFile(outPath, "utf8");
-    expect(result).toContain("99");
-    await fs.promises.rm(base, { recursive: true, force: true });
-  });
-
-  it("exits when transform file fails to load", async () => {
-    const spy = jest.spyOn(process, "exit").mockImplementation(() => {
-      throw new Error("process.exit called");
-    });
-
-    await expect(
-      tscribe({
-        src: ROOT,
-        ext: "ts",
-        ignore: "",
-        transform: "nonexistent/path.cjs",
-        format: "plain",
-        quiet: true,
-        sort: "path",
-      })
-    ).rejects.toThrow("process.exit called");
-
-    spy.mockRestore();
-  });
 });
 
-// Cleanup any root temp folders
+// cleanup any temp directories we created under the project root
 afterAll(async () => {
-  await Promise.all([
-    fs.promises.rm(path.join(ROOT, "__temp_list__"), {
+  for (const dir of ["__temp__", "__temp_list__", "__temp_zip__"]) {
+    await fs.promises.rm(path.join(ROOT, dir), {
       recursive: true,
       force: true,
-    }),
-    fs.promises.rm(path.join(ROOT, "__temp_zip__"), {
-      recursive: true,
-      force: true,
-    }),
-    fs.promises.rm(path.join(ROOT, "__temp_transform__"), {
-      recursive: true,
-      force: true,
-    }),
-    fs.promises.rm(path.join(ROOT, "__temp__"), {
-      recursive: true,
-      force: true,
-    }),
-  ]);
+    });
+  }
 });

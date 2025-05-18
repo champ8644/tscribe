@@ -1,9 +1,7 @@
-import { promises as fs } from "fs";
+import { promises as fs, createWriteStream } from "fs";
 import path from "path";
 import { glob } from "glob";
 import archiver from "archiver";
-import { createWriteStream } from "fs";
-import { pathToFileURL } from "url";
 import { TscribeOptions } from "./types";
 
 function log(message: string, opts: TscribeOptions) {
@@ -24,9 +22,6 @@ export async function tscribe(opts: TscribeOptions): Promise<void> {
   debug(`ignore = ${opts.ignore}`, opts);
   debug(`sort = ${opts.sort}`, opts);
 
-  // Pass opts into plugin loader for proper logging
-  const transformFn = await loadTransformPlugin(opts.transform, opts);
-
   const exts = opts.ext.split(",").map((e) => e.trim().toLowerCase());
   const pattern = `${path.resolve(opts.src)}/**/*.{${exts.join(",")}}`;
   const ignoreList = opts.ignore.split(",").map((p) => p.trim());
@@ -42,10 +37,7 @@ export async function tscribe(opts: TscribeOptions): Promise<void> {
 
   const sections = await Promise.all(
     sorted.map(async (f) => {
-      let body = await fs.readFile(f, "utf8");
-      if (transformFn) {
-        body = await transformFn(body, f);
-      }
+      const body = await fs.readFile(f, "utf8");
       const title = headingTpl.replace(
         "{file}",
         path.relative(process.cwd(), f)
@@ -64,42 +56,11 @@ export async function tscribe(opts: TscribeOptions): Promise<void> {
     await archive.finalize();
     await new Promise<void>((resolve) => stream.on("close", () => resolve()));
     log(`📦 Zipped output to ${opts.zip}`, opts);
-  } else if (opts.out) {
-    await fs.writeFile(opts.out, fullOutput, "utf8");
-    log(`✅ Written to ${opts.out}`, opts);
   } else {
     process.stdout.write(fullOutput);
   }
 
   log(`✅ Processed ${sections.length} files.`, opts);
-}
-
-/**
- * Try to load a CommonJS transform module, exiting on failure.
- */
-async function loadTransformPlugin(
-  pathOrEmpty?: string,
-  opts?: TscribeOptions
-) {
-  if (!pathOrEmpty) return undefined;
-
-  const full = path.resolve(pathOrEmpty);
-  if (full.endsWith(".cjs")) {
-    try {
-      // require the .cjs transform
-      const mod = require(full);
-      return mod.default ?? mod.transform ?? mod;
-    } catch (err) {
-      console.error("❌ Failed to load transform module:", err);
-      // tests expect an exit(2)
-      if (opts) process.exit(2);
-      // in non-CLI contexts, rethrow
-      throw err;
-    }
-  }
-
-  // no other module types supported under CommonJS mode
-  return undefined;
 }
 
 export async function applySort(

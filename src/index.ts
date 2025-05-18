@@ -12,7 +12,6 @@ program
     "Concatenate TypeScript-family files with headings, ready for ChatGPT."
   )
   .option("-s, --src <directory>", "root folder to scan", ".")
-  .option("-o, --out <file>", "output file (stdout if omitted)", "")
   .option("--zip <file>", "write output to a zip file instead")
   .option("-e, --ext <list>", "comma-separated extensions", "ts,tsx")
   .option(
@@ -23,7 +22,6 @@ program
   .option("--heading <template>", "heading template", "")
   .option("--format <type>", "heading format: md or plain", "md")
   .option("--sort <mode>", "sort files: alpha, path, or mtime", "path")
-  .option("--transform <file>", "path to a JS file with transform function")
   .option("--list", "print file list only")
   .option("--watch", "watch for file changes")
   .option("--verbose", "print debug output")
