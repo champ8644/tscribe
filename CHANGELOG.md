@@ -2,6 +2,21 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [1.3.0](https://github.com/champ8644/tscribe/compare/v1.2.1...v1.3.0) (2025-05-18)
+
+
+### Features
+
+* update version to 1.2.1 and add Codecov token to CI workflow ([ca2246b](https://github.com/champ8644/tscribe/commit/ca2246b3ca75615e332701b5c132bbdecfc9bfbd))
+
+
+### Bug Fixes
+
+* standardize quotation marks in LICENSE file ([ba6af9b](https://github.com/champ8644/tscribe/commit/ba6af9bd2def2b2c96d7fcbff652920092342b97))
+* update CI workflow to use master branch instead of main ([e619356](https://github.com/champ8644/tscribe/commit/e619356df5ed28c0a20367e1881698233d9b2c98))
+* update Codecov action configuration to include slug ([3609d9f](https://github.com/champ8644/tscribe/commit/3609d9fa1deeed6c62f251594f1ed45d88dea8d8))
+* update deploy script to push to master branch instead of main ([338f0b8](https://github.com/champ8644/tscribe/commit/338f0b8032d861a9ef1d4de3b0ba798086003a9f))
+
 ### [1.2.1](https://github.com/champ8644/tscribe/compare/v1.2.0...v1.2.1) (2025-05-18)
 
 
