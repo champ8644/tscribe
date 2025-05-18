@@ -3,13 +3,13 @@ import chokidar from "chokidar";
 import { tscribe } from "./core";
 import { loadConfig } from "./load-config";
 import { TscribeOptions } from "./types";
-import pkg from "../package.json";
+import { version } from "./version";
 
 const program = new Command();
 
 program
   .name("tscribe")
-  .version(pkg.version, "-v, --version", "output the current version")
+  .version(version, "-v, --version", "output the current version")
   .description(
     "Concatenate TypeScript-family files with headings, ready for ingestion by LLMs."
   )

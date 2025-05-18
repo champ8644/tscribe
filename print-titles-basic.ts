@@ -30,4 +30,4 @@ async function main(rootDir: string, outputPath: string) {
   console.log(`✅ Done. Written to ${outputPath}`);
 }
 
-main("./test", "output.txt").catch(console.error);
+main("./src", "output.txt").catch(console.error);
