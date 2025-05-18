@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [1.2.1](https://github.com/champ8644/tscribe/compare/v1.2.0...v1.2.1) (2025-05-18)
+
+
+### Bug Fixes
+
+* update README badges to reflect branch name change from main to master ([a5d0cb9](https://github.com/champ8644/tscribe/commit/a5d0cb91f8aeb0926e494baee1329b908005a3b6))
+
 ## [1.2.0](https://github.com/champ8644/tscribe/compare/v1.1.0...v1.2.0) (2025-05-18)
 
 
