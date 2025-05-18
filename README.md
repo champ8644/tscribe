@@ -5,7 +5,7 @@
 [![codecov](https://codecov.io/gh/champ8644/tscribe/branch/master/graph/badge.svg)](https://codecov.io/gh/champ8644/tscribe)
 [![License](https://img.shields.io/github/license/champ8644/tscribe?style=flat-square)](https://github.com/champ8644/tscribe/blob/master/LICENSE)
 
-> Concatenate TypeScript‑family files into a ChatGPT‑ready dump or a zip archive.
+> Concatenate TypeScript‑family files into a LLM‑ready dump or a zip archive.
 
 ---
 
