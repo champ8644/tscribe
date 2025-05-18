@@ -3,6 +3,10 @@
   "version": "1.0.0",
   "description": "CLI to dump TypeScript sources with headings for LLM ingestion",
   "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/champ8644/tscribe"
+  },
   "type": "commonjs",
   "bin": {
     "tscribe": "dist/index.js"
