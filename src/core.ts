@@ -24,6 +24,7 @@ export async function tscribe(opts: TscribeOptions): Promise<void> {
   debug(`ignore = ${opts.ignore}`, opts);
   debug(`sort = ${opts.sort}`, opts);
 
+  // Pass opts into plugin loader for proper logging
   const transformFn = await loadTransformPlugin(opts.transform, opts);
 
   const exts = opts.ext.split(",").map((e) => e.trim().toLowerCase());
@@ -35,7 +36,7 @@ export async function tscribe(opts: TscribeOptions): Promise<void> {
   const sorted = await applySort(files, opts.sort);
 
   if (opts.list) {
-    console.log(sorted.join("\n"));
+    log(sorted.join("\n"), opts);
     return;
   }
 
@@ -73,38 +74,37 @@ export async function tscribe(opts: TscribeOptions): Promise<void> {
   log(`✅ Processed ${sections.length} files.`, opts);
 }
 
+// Updated to accept optional opts for logging
 async function loadTransformPlugin(
-  pathOrEmpty: string | undefined,
-  opts: TscribeOptions
+  pathOrEmpty?: string,
+  opts?: TscribeOptions
 ) {
   if (!pathOrEmpty) return undefined;
-  try {
-    const fileUrl = pathToFileURL(path.resolve(pathOrEmpty)).href;
-    const mod = await import(fileUrl);
-    const fn = mod.default ?? mod.transform;
-    if (typeof fn !== "function") {
-      throw new Error(
-        "Transform module must export a default or named function"
-      );
-    }
-    debug(`Loaded transform from ${pathOrEmpty}`, opts);
-    return fn;
-  } catch (err) {
-    console.error("❌ Failed to load transform module:", err);
-    process.exit(2);
+
+  const fullPath = path.resolve(pathOrEmpty);
+
+  if (fullPath.endsWith(".cjs")) {
+    const mod = require(fullPath);
+    if (opts) debug(`Loaded CJS transform: ${fullPath}`, opts);
+    return mod.default ?? mod.transform ?? mod;
   }
+
+  const fileUrl = pathToFileURL(fullPath).href;
+  const esmMod = await import(fileUrl);
+  if (opts) debug(`Loaded ESM transform: ${fullPath}`, opts);
+  return esmMod.default ?? esmMod.transform;
 }
 
-export async function applySort(files: string[], mode: TscribeOptions["sort"]) {
+export async function applySort(
+  files: string[],
+  mode: TscribeOptions["sort"]
+): Promise<string[]> {
   switch (mode) {
     case "alpha":
       return files.sort((a, b) => a.localeCompare(b));
     case "mtime": {
       const stats = await Promise.all(
-        files.map(async (f) => ({
-          file: f,
-          mtime: (await fs.stat(f)).mtimeMs,
-        }))
+        files.map(async (f) => ({ file: f, mtime: (await fs.stat(f)).mtimeMs }))
       );
       return stats.sort((a, b) => a.mtime - b.mtime).map((s) => s.file);
     }
