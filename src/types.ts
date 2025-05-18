@@ -1,8 +1,9 @@
 export interface TscribeOptions {
   src: string;
+  out?: string; // ← add this back
   zip?: string;
   ext: string;
-  ignore: string;
+  ignore?: string;
   heading?: string;
   format: "md" | "plain";
   sort: "alpha" | "path" | "mtime";
