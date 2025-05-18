@@ -3,7 +3,7 @@
   "version": "0.1.0",
   "description": "CLI to dump TypeScript sources with headings for ChatGPT ingestion",
   "license": "MIT",
-  "type": "module",
+  "type": "commonjs",
   "bin": {
     "tscribe": "dist/index.js"
   },

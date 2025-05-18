@@ -74,25 +74,32 @@ export async function tscribe(opts: TscribeOptions): Promise<void> {
   log(`✅ Processed ${sections.length} files.`, opts);
 }
 
-// Updated to accept optional opts for logging
+/**
+ * Try to load a CommonJS transform module, exiting on failure.
+ */
 async function loadTransformPlugin(
   pathOrEmpty?: string,
   opts?: TscribeOptions
 ) {
   if (!pathOrEmpty) return undefined;
 
-  const fullPath = path.resolve(pathOrEmpty);
-
-  if (fullPath.endsWith(".cjs")) {
-    const mod = require(fullPath);
-    if (opts) debug(`Loaded CJS transform: ${fullPath}`, opts);
-    return mod.default ?? mod.transform ?? mod;
+  const full = path.resolve(pathOrEmpty);
+  if (full.endsWith(".cjs")) {
+    try {
+      // require the .cjs transform
+      const mod = require(full);
+      return mod.default ?? mod.transform ?? mod;
+    } catch (err) {
+      console.error("❌ Failed to load transform module:", err);
+      // tests expect an exit(2)
+      if (opts) process.exit(2);
+      // in non-CLI contexts, rethrow
+      throw err;
+    }
   }
 
-  const fileUrl = pathToFileURL(fullPath).href;
-  const esmMod = await import(fileUrl);
-  if (opts) debug(`Loaded ESM transform: ${fullPath}`, opts);
-  return esmMod.default ?? esmMod.transform;
+  // no other module types supported under CommonJS mode
+  return undefined;
 }
 
 export async function applySort(
