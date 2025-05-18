@@ -50,5 +50,27 @@
     "standard-version": "^9.5.0",
     "ts-jest": "^29.3.4",
     "typescript": "^5.4.0"
-  }
+  },
+  "keywords": [
+    "typescript",
+    "cli",
+    "code-extraction",
+    "prompt-engineering",
+    "chatgpt",
+    "claude",
+    "llm",
+    "code-formatter",
+    "source-code",
+    "ts-parser",
+    "code-dumper",
+    "static-analysis",
+    "developer-tools",
+    "documentation",
+    "tsdoc",
+    "openai",
+    "codegen",
+    "langchain",
+    "code-explainer",
+    "ast"
+  ]
 }

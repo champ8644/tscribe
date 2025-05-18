@@ -9,23 +9,39 @@
 
 ---
 
+## What is tscribe for?
+
+`tscribe` is a developer CLI tool that extracts `.ts` and `.tsx` source files from your project, transforms them into a readable Markdown structure, and outputs the result as either a plain text file or a zipped archive.  
+It is especially useful for:
+
+- Static code analysis or documentation generation
+- Developer tooling and AI workflow integration
+
+Supports mono-repos, source indexing, and zip bundling for efficient context window management in LLMs.
+
+---
+
 ## Quick Start
 
-### Out of the box
+### Basic usage
 
 ```bash
 npx tscribe > out.txt
 ```
 
-This scans the current directory (`.`), collects `*.ts` and `*.tsx`, prepends Markdown headings, and writes to **stdout**.
+By default, this command recursively scans the current working directory (`.`), collects `*.ts` and `*.tsx` files, prepends Markdown-style section headers, and writes the result to **stdout**.
 
-### Common variants
+You can redirect this output to a file (e.g., `out.txt`) as shown above.
+
+### Optional flags
 
 ```bash
 npx tscribe --src src           # choose a folder explicitly
 npx tscribe --out dump.txt      # write straight to a file
 npx tscribe --zip dump.zip      # zip with output.txt inside
 ```
+
+These flags allow explicit control over the input source and output format, whether writing to a file or creating a bundled archive.
 
 ---
 
@@ -34,6 +50,7 @@ npx tscribe --zip dump.zip      # zip with output.txt inside
 | Goal                           | Command                              |
 | ------------------------------ | ------------------------------------ |
 | Dump all source under `src/`   | `tscribe --src src`                  |
+| Use custom file extensions     | `tscribe --ext ts,mts,tsx`           |
 | Plain‑text headings            | `tscribe --format plain`             |
 | Alphabetical sort, ignore dist | `tscribe --sort alpha --ignore dist` |
 | List matched files only        | `tscribe --list`                     |
