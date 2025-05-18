@@ -3,7 +3,7 @@
 [![npm](https://img.shields.io/npm/v/tscribe?style=flat-square)](https://www.npmjs.com/package/tscribe)
 [![CI](https://github.com/champ8644/tscribe/actions/workflows/ci.yml/badge.svg?branch=master)](https://github.com/champ8644/tscribe/actions/workflows/ci.yml)
 [![codecov](https://codecov.io/gh/champ8644/tscribe/branch/master/graph/badge.svg)](https://codecov.io/gh/champ8644/tscribe)
-[![License](https://img.shields.io/github/license/champ8644/tscribe?style=flat-square)](https://github.com/champ8644/tscribe/blob/master/LICENSE)
+[![License](https://img.shields.io/github/license/champ8644/tscribe)](https://github.com/champ8644/tscribe/blob/master/LICENSE)
 
 > Concatenate TypeScript‑family files into a LLM‑ready dump or a zip archive.
 
