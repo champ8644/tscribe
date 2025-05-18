@@ -1,19 +1,9 @@
 # tscribe
 
-<p>
-  <a href="https://www.npmjs.com/package/tscribe">
-    <img src="https://img.shields.io/npm/v/tscribe.svg?style=flat-square" alt="npm version" />
-  </a>
-  <a href="https://github.com/champ8644/tscribe/actions">
-    <img src="https://img.shields.io/github/actions/workflow/status/champ8644/tscribe/ci.yml?branch=main&style=flat-square" alt="CI status" />
-  </a>
-  <a href="https://codecov.io/gh/champ8644/tscribe">
-    <img src="https://img.shields.io/codecov/c/gh/champ8644/tscribe?style=flat-square" alt="Coverage" />
-  </a>
-  <a href="https://github.com/champ8644/tscribe/blob/main/LICENSE">
-    <img src="https://img.shields.io/github/license/champ8644/tscribe?style=flat-square" alt="License" />
-  </a>
-</p>
+[![npm](https://img.shields.io/npm/v/tscribe?style=flat-square)](https://www.npmjs.com/package/tscribe)
+[![CI](https://github.com/champ8644/tscribe/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/champ8644/tscribe/actions/workflows/ci.yml)
+[![codecov](https://codecov.io/gh/champ8644/tscribe/branch/main/graph/badge.svg)](https://codecov.io/gh/champ8644/tscribe)
+[![License](https://img.shields.io/github/license/champ8644/tscribe?style=flat-square)](https://github.com/champ8644/tscribe/blob/main/LICENSE)
 
 > Concatenate TypeScript‑family files into a ChatGPT‑ready dump or a zip archive.
 
