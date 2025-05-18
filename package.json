@@ -1,6 +1,6 @@
 {
   "name": "tscribe",
-  "version": "1.1.0",
+  "version": "1.2.0",
   "description": "CLI to dump TypeScript sources with headings for LLM ingestion",
   "license": "MIT",
   "repository": {
@@ -35,7 +35,7 @@
     "test:coverage": "jest --coverage",
     "prepublishOnly": "npm run test && npm run build",
     "release": "standard-version",
-    "release:push": "npm run release && git push origin main --follow-tags"
+    "deploy": "npm run release && git push origin main --follow-tags"
   },
   "dependencies": {
     "@types/node": "^22.15.18",

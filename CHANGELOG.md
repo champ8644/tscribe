@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [1.2.0](https://github.com/champ8644/tscribe/compare/v1.1.0...v1.2.0) (2025-05-18)
+
+
+### Features
+
+* update version to 1.1.0 and synchronize version file; enhance CI workflow for multiple Node.js versions ([2309463](https://github.com/champ8644/tscribe/commit/23094639d85b981527fb1cac0a71a4e1f35e4a75))
+
 ## 1.1.0 (2025-05-18)
 
 
