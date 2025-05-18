@@ -1,4 +1,4 @@
-import { applySort, tscribe } from "../src/core";
+import { applySort, tscribe, findFilesDirectly } from "../src/core";
 import * as fs from "fs";
 import * as path from "path";
 
@@ -98,7 +98,7 @@ describe("tscribe integration", () => {
       { name: "b.ts", content: `console.log('B');` },
     ];
 
-    // ✅ Synchronously write files to ensure they are visible immediately
+    // Synchronously write files to ensure they are visible immediately
     files.forEach((f) => {
       fs.writeFileSync(path.join(base, f.name), f.content);
     });
@@ -158,7 +158,7 @@ describe("tscribe integration", () => {
       quiet: false,
     });
 
-    // ✅ Match the "[debug]" and string separately
+    // Match the "[debug]" and string separately
     const debugMessages = logSpy.mock.calls
       .filter(([tag]) => tag === "[debug]")
       .map(([, msg]) => msg);
@@ -171,6 +171,110 @@ describe("tscribe integration", () => {
     );
 
     logSpy.mockRestore();
+  });
+
+  it("exits early if source directory does not exist", async () => {
+    const logSpy = jest.spyOn(console, "log").mockImplementation(() => {});
+
+    await tscribe({
+      src: "__nonexistent__",
+      ext: "ts",
+      ignore: "",
+      format: "plain",
+      sort: "path",
+    });
+
+    expect(logSpy).toHaveBeenCalledWith(
+      expect.stringContaining("Processed 0 files")
+    );
+    logSpy.mockRestore();
+  });
+
+  it("returns empty on FS read error", async () => {
+    const result = await findFilesDirectly("__bad__", ["ts"]);
+    expect(result).toEqual([]);
+  });
+
+  it("logs error when glob fails", async () => {
+    const globMock = jest
+      .spyOn(await import("glob"), "glob")
+      .mockImplementationOnce(() => {
+        throw new Error("glob fail");
+      });
+
+    const base = path.join(ROOT, "__temp_glob_error__");
+    await fs.promises.mkdir(base, { recursive: true });
+
+    const logSpy = jest.spyOn(console, "log").mockImplementation(() => {});
+
+    await tscribe({
+      src: base,
+      ext: "ts",
+      ignore: "",
+      format: "plain",
+      sort: "path",
+      verbose: true,
+    });
+
+    const errorCall = logSpy.mock.calls.find(
+      ([tag, msg]) =>
+        tag === "[debug]" &&
+        typeof msg === "string" &&
+        msg.includes("Error in glob")
+    );
+
+    expect(errorCall).toBeDefined();
+
+    globMock.mockRestore();
+    logSpy.mockRestore();
+    fs.rmSync(base, { recursive: true, force: true });
+  });
+
+  it("outputs empty string when no files and not zipping", async () => {
+    const base = path.join(ROOT, "__temp_empty__");
+    await fs.promises.mkdir(base, { recursive: true });
+
+    const writeSpy = jest
+      .spyOn(process.stdout, "write")
+      .mockImplementation(() => true);
+
+    await tscribe({
+      src: base,
+      ext: "ts",
+      ignore: "",
+      format: "plain",
+      sort: "path",
+      quiet: true,
+    });
+
+    expect(writeSpy).toHaveBeenCalledWith("");
+    writeSpy.mockRestore();
+    fs.rmSync(base, { recursive: true, force: true });
+  });
+
+  it("handles 'no files' early-exit when --zip is provided (covers branch on line 66)", async () => {
+    const base = path.join(ROOT, "__temp_empty_zip__");
+    const zipPath = path.join(base, "out.zip");
+
+    // empty directory – no .ts files at all
+    await fs.promises.mkdir(base, { recursive: true });
+
+    const logSpy = jest.spyOn(console, "log").mockImplementation(() => {});
+
+    await tscribe({
+      src: base,
+      ext: "ts",
+      format: "plain",
+      sort: "path",
+      zip: zipPath, // <-- makes `!opts.zip` evaluate to FALSE
+      quiet: true,
+    });
+
+    // the early-exit shouldn't create a zip because there were no files
+    expect(fs.existsSync(zipPath)).toBe(false);
+
+    logSpy.mockRestore();
+    fs.rmSync(base, { recursive: true, force: true });
   });
 });
 

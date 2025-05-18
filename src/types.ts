@@ -1,6 +1,6 @@
 export interface TscribeOptions {
   src: string;
-  out?: string; // ← add this back
+  out?: string;
   zip?: string;
   ext: string;
   ignore?: string;

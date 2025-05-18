@@ -15,7 +15,7 @@ function debug(message: string, opts: TscribeOptions) {
 /**
  * Find files directly using filesystem APIs - more reliable in test environments
  */
-async function findFilesDirectly(
+export async function findFilesDirectly(
   dir: string,
   extensions: string[]
 ): Promise<string[]> {
@@ -110,8 +110,6 @@ export async function tscribe(opts: TscribeOptions): Promise<void> {
       return `${title}\n\n${body}`;
     })
   );
-
-  //   console.log("🔍 tscribe: sections =", sections);
 
   const fullOutput = sections.join("\n\n");
 
