@@ -35,7 +35,7 @@
     "test:coverage": "jest --coverage",
     "prepublishOnly": "npm run test && npm run build",
     "release": "standard-version",
-    "deploy": "npm run release && git push origin main --follow-tags"
+    "deploy": "npm run release && git push origin master --follow-tags"
   },
   "dependencies": {
     "@types/node": "^22.15.18",
