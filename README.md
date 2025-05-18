@@ -15,10 +15,18 @@
   </a>
 </p>
 
-Concatenate TypeScript-family source files into a single, ChatGPT-friendly text or a zip archive.
+Concatenate TypeScript-family source files into a single text or a zip archive.
 tscribe walks a directory tree, selects files by extension, adds a heading for each file, and prints or archives the result. It can also watch for changes or list files only.
 
 ---
+
+## Quick Start
+
+### One-shot use (no install)
+
+```bash
+npx tscribe --src src --ext ts,tsx --sort alpha --format md > out.txt
+```
 
 ## Features
 
@@ -29,7 +37,6 @@ tscribe walks a directory tree, selects files by extension, adds a heading for e
 - Optional zip output (`output.txt` inside the archive)
 - Watch mode with automatic rebuilds
 - Quiet and verbose flags for controlled logging
-- 100 % test coverage
 
 ---
 

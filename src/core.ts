@@ -87,9 +87,16 @@ export async function tscribe(opts: TscribeOptions): Promise<void> {
   if (files.length === 0) {
     debug("No files found", opts);
     log(`✅ Processed 0 files.`, opts);
-    if (!opts.zip) {
-      process.stdout.write(""); // Empty output when no files found
+
+    const empty = "";
+    if (opts.zip) {
+      // do nothing (no zip output for empty)
+    } else if (opts.out) {
+      await fs.writeFile(path.resolve(opts.out), empty, "utf8"); // write empty file
+    } else {
+      process.stdout.write(empty); // default fallback
     }
+
     return;
   }
 
@@ -121,6 +128,8 @@ export async function tscribe(opts: TscribeOptions): Promise<void> {
     await archive.finalize();
     await new Promise<void>((resolve) => stream.on("close", () => resolve()));
     log(`📦 Zipped output to ${opts.zip}`, opts);
+  } else if (opts.out) {
+    await fs.writeFile(path.resolve(opts.out), fullOutput, "utf8");
   } else {
     process.stdout.write(fullOutput);
   }

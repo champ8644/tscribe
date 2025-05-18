@@ -276,6 +276,69 @@ describe("tscribe integration", () => {
     logSpy.mockRestore();
     fs.rmSync(base, { recursive: true, force: true });
   });
+
+  it("writes concatenated output to a text file when --out is provided", async () => {
+    const logSpy = jest.spyOn(console, "log").mockImplementation(() => {});
+
+    const base = path.join(ROOT, "__temp_out__");
+    const outPath = path.join(base, "out.txt");
+
+    // Prepare a directory with one .ts file
+    await fs.promises.mkdir(base, { recursive: true });
+    const srcFile = path.join(base, "demo.ts");
+    await fs.promises.writeFile(srcFile, `console.log('hello');`);
+
+    // Spy on stdout so we can ensure it’s NOT called
+    const writeSpy = jest
+      .spyOn(process.stdout, "write")
+      .mockImplementation(() => true);
+
+    // Run tscribe with --out
+    await tscribe({
+      src: base,
+      ext: "ts",
+      out: outPath,
+      format: "md",
+      sort: "path",
+    });
+
+    // The out.txt file should exist and contain the heading + body
+    expect(fs.existsSync(outPath)).toBe(true);
+    const content = await fs.promises.readFile(outPath, "utf8");
+    const rel = path.relative(process.cwd(), srcFile).replace(/\\/g, "/");
+    expect(content).toContain(`### ${rel}`);
+    expect(content).toContain(`console.log('hello');`);
+
+    // stdout.write should not have been called
+    expect(writeSpy.mock.calls.length).toBe(0);
+
+    writeSpy.mockRestore();
+    fs.rmSync(base, { recursive: true, force: true });
+
+    logSpy.mockRestore();
+  });
+
+  it("creates an empty text file if no files are matched and --out is given", async () => {
+    const base = path.join(ROOT, "__temp_out_empty__");
+    const outPath = path.join(base, "out.txt");
+
+    await fs.promises.mkdir(base, { recursive: true });
+
+    await tscribe({
+      src: base,
+      ext: "ts",
+      out: outPath,
+      format: "plain",
+      sort: "path",
+      quiet: true,
+    });
+
+    expect(fs.existsSync(outPath)).toBe(true);
+    const content = await fs.promises.readFile(outPath, "utf8");
+    expect(content).toBe(""); // no files, no output
+
+    fs.rmSync(base, { recursive: true, force: true });
+  });
 });
 
 // cleanup any root temp directories you created
@@ -287,6 +350,8 @@ afterAll(async () => {
     "__temp_zip__",
     "__temp_stdout__",
     "__temp_debug__",
+    "__temp_out__",
+    "__temp_out_empty__",
   ]) {
     await fs.promises.rm(path.join(ROOT, dir), {
       recursive: true,
