@@ -3,13 +3,15 @@ import chokidar from "chokidar";
 import { tscribe } from "./core";
 import { loadConfig } from "./load-config";
 import { TscribeOptions } from "./types";
+import pkg from "../package.json";
 
 const program = new Command();
 
 program
   .name("tscribe")
+  .version(pkg.version, "-v, --version", "output the current version")
   .description(
-    "Concatenate TypeScript-family files with headings, ready for ChatGPT."
+    "Concatenate TypeScript-family files with headings, ready for ingestion by LLMs."
   )
   .option("-s, --src <directory>", "root folder to scan", ".")
   .option("-o, --out <file>", "write output to a text file")
