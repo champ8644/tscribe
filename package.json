@@ -34,7 +34,7 @@
     "test:watch": "jest --watch",
     "test:coverage": "jest --coverage",
     "prepublishOnly": "npm run test && npm run build",
-    "release": "standard-version",
+    "predeploy": "npm run test && npm run build && npm run build:bin",
     "deploy": "npm run release && git push origin master --follow-tags"
   },
   "dependencies": {
@@ -49,6 +49,7 @@
     "@types/jest": "^29.5.14",
     "@types/micromatch": "^4.0.9",
     "jest": "^29.7.0",
+    "pkg": "^5.8.1",
     "standard-version": "^9.5.0",
     "ts-jest": "^29.3.4",
     "typescript": "^5.4.0"
@@ -75,5 +76,16 @@
     "code-explainer",
     "ast"
   ],
+  "pkg": {
+    "scripts": [
+      "dist/**/*.js"
+    ],
+    "targets": [
+      "node20-linux-x64",
+      "node20-macos-x64",
+      "node20-win-x64"
+    ],
+    "outputPath": "pkg"
+  },
   "packageManager": "pnpm@10.10.0+sha512.d615db246fe70f25dcfea6d8d73dee782ce23e2245e3c4f6f888249fb568149318637dca73c2c5c8ef2a4ca0d5657fb9567188bfab47f566d1ee6ce987815c39"
 }
