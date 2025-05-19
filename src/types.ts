@@ -1,7 +1,6 @@
 export interface TscribeOptions {
   src: string;
   out?: string;
-  zip?: string;
   ext: string;
   ignore?: string;
   heading?: string;

@@ -1,8 +1,9 @@
-import { promises as fs, createWriteStream, existsSync, readdirSync } from "fs";
+import { promises as fs, existsSync, readdirSync } from "fs";
 import path from "path";
 import { glob } from "glob";
-import archiver from "archiver";
 import { TscribeOptions } from "./types";
+import micromatch from "micromatch";
+import { orderBy } from "natural-orderby";
 
 function log(message: string, opts: TscribeOptions) {
   if (!opts.quiet) console.log(message);
@@ -12,24 +13,37 @@ function debug(message: string, opts: TscribeOptions) {
   if (opts.verbose && !opts.quiet) console.log("[debug]", message);
 }
 
-/**
- * Find files directly using filesystem APIs - more reliable in test environments
- */
-export async function findFilesDirectly(
-  dir: string,
-  extensions: string[]
-): Promise<string[]> {
-  try {
-    const dirFiles = readdirSync(dir);
-    return dirFiles
-      .filter((file) => {
-        const ext = path.extname(file).slice(1).toLowerCase();
-        return extensions.includes(ext);
-      })
-      .map((file) => path.join(dir, file));
-  } catch (err) {
-    return [];
+function filterIgnoredPaths(
+  files: string[],
+  ignore: string,
+  basePath: string
+): string[] {
+  if (!ignore?.trim()) return files;
+
+  const patterns = ignore
+    .split(",")
+    .map((p) => p.trim().replace(/\\/g, "/"))
+    .filter(Boolean);
+
+  return files.filter((file) => {
+    const relativePath = path.relative(basePath, file).replace(/\\/g, "/");
+    return !micromatch.isMatch(relativePath, patterns);
+  });
+}
+
+export function buildGlobPattern(srcPath: string, ext: string): string {
+  const resolved = srcPath.replace(/\\/g, "/");
+  if (ext === "" || ext === "*") {
+    return `${resolved}/**/*`;
   }
+  const exts = ext
+    .split(",")
+    .map((e) => e.trim())
+    .filter(Boolean);
+  if (exts.length > 1) {
+    return `${resolved}/**/*.{${exts.join(",")}}`;
+  }
+  return `${resolved}/**/*.${exts[0]}`;
 }
 
 export async function tscribe(opts: TscribeOptions): Promise<void> {
@@ -41,6 +55,7 @@ export async function tscribe(opts: TscribeOptions): Promise<void> {
   debug(`ext = ${opts.ext}`, opts);
   debug(`ignore = ${opts.ignore}`, opts);
   debug(`sort = ${opts.sort}`, opts);
+  debug(`verbose = ${opts.verbose}`, opts);
 
   let files: string[] = [];
   const srcPath = path.resolve(opts.src);
@@ -52,46 +67,43 @@ export async function tscribe(opts: TscribeOptions): Promise<void> {
     return;
   }
 
-  // Parse extensions
-  const extsArray = opts.ext.split(",").map((e) => e.trim().toLowerCase());
+  const pattern = buildGlobPattern(srcPath, opts.ext);
 
-  // Use direct file reading - more reliable especially for tests
-  files = await findFilesDirectly(srcPath, extsArray);
+  debug(`glob pattern: ${pattern}`, opts);
+  // handle ignore patterns properly
+  const ignoreList = (opts.ignore ?? "node_modules,dist,.git")
+    .split(",")
+    .map((p) => p.trim())
+    .filter(Boolean);
 
-  // If no files found yet, try with glob as fallback
-  if (files.length === 0) {
-    const pattern = `${srcPath.replace(/\\/g, "/")}/**/*.{${opts.ext}}`;
-    log(`🚀 ~ tscribe ~ pattern: ${pattern}`, opts);
+  try {
+    debug(`srcPath exists: ${existsSync(srcPath)}`, opts);
+    debug(`ignoreList: ${ignoreList.join(", ")}`, opts);
+    debug(`directory contents: ${readdirSync(srcPath).join(", ")}`, opts);
 
-    const ignoreList = (opts.ignore ?? "node_modules,dist,.git")
-      .split(",")
-      .map((p) => p.trim());
-
-    try {
-      files = await glob(pattern, {
-        ignore: ignoreList,
-        windowsPathsNoEscape: true,
-        absolute: true,
-      });
-
-      debug(`Found ${files.length} files using glob`, opts);
-    } catch (err) {
-      debug(`Error in glob: ${err}`, opts);
-    }
-  } else {
-    debug(`Found ${files.length} files using direct file system`, opts);
+    files = await glob(pattern, {
+      ignore: ignoreList,
+      absolute: true,
+      nodir: true,
+    });
+    debug(`found ${files.length} files via glob`, opts);
+  } catch (err) {
+    log(`error in glob: ${err}`, opts);
   }
 
-  //   console.log("🔍 tscribe: files =", files);
+  // apply manual filtering
+  files = filterIgnoredPaths(files, opts.ignore || "", srcPath);
+  debug(`final filtered files: ${files.length}`, opts);
+
+  // show matched files only in verbose mode
+  debug(`files matched before output: ${files.join(", ")}`, opts);
 
   if (files.length === 0) {
     debug("No files found", opts);
     log(`✅ Processed 0 files.`, opts);
 
     const empty = "";
-    if (opts.zip) {
-      // do nothing (no zip output for empty)
-    } else if (opts.out) {
+    if (opts.out) {
       await fs.writeFile(path.resolve(opts.out), empty, "utf8"); // write empty file
     } else {
       process.stdout.write(empty); // default fallback
@@ -120,16 +132,11 @@ export async function tscribe(opts: TscribeOptions): Promise<void> {
 
   const fullOutput = sections.join("\n\n");
 
-  if (opts.zip) {
-    const stream = createWriteStream(path.resolve(opts.zip));
-    const archive = archiver("zip", { zlib: { level: 9 } });
-    archive.pipe(stream);
-    archive.append(fullOutput, { name: "output.txt" });
-    await archive.finalize();
-    await new Promise<void>((resolve) => stream.on("close", () => resolve()));
-    log(`📦 Zipped output to ${opts.zip}`, opts);
-  } else if (opts.out) {
-    await fs.writeFile(path.resolve(opts.out), fullOutput, "utf8");
+  if (opts.out) {
+    // Fix: Make sure output file is written properly
+    const outPath = path.resolve(opts.out);
+    await fs.writeFile(outPath, fullOutput, "utf8");
+    debug(`Output written to ${outPath}`, opts);
   } else {
     process.stdout.write(fullOutput);
   }
@@ -143,7 +150,7 @@ export async function applySort(
 ): Promise<string[]> {
   switch (mode) {
     case "alpha":
-      return files.sort((a, b) => a.localeCompare(b));
+      return orderBy([...files], [(f) => path.basename(f)]);
     case "mtime": {
       const stats = await Promise.all(
         files.map(async (f) => ({ file: f, mtime: (await fs.stat(f)).mtimeMs }))

@@ -15,7 +15,6 @@ program
   )
   .option("-s, --src <directory>", "root folder to scan", ".")
   .option("-o, --out <file>", "write output to a text file")
-  .option("--zip <file>", "write output to a zip file instead")
   .option("-e, --ext <list>", "comma-separated extensions", "ts,tsx")
   .option(
     "--ignore <patterns>",
