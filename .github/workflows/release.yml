@@ -5,6 +5,10 @@ on:
     tags:
       - "v*.*.*"
 
+permissions:
+  contents: write # Needed to create GitHub release
+  packages: write # Optional, good for npm publish
+
 jobs:
   release:
     runs-on: ubuntu-latest
@@ -25,7 +29,7 @@ jobs:
         run: npm run build
 
       - name: Build binaries with pkg
-        run: npx pkg .
+        run: npx pkg . --out-path pkg
         env:
           PKG_CACHE_PATH: .pkg-cache
 
@@ -33,9 +37,9 @@ jobs:
         uses: softprops/action-gh-release@v1
         with:
           files: |
-            tscribe-linux
-            tscribe-macos
-            tscribe-win.exe
+            pkg/tscribe-linux
+            pkg/tscribe-macos
+            pkg/tscribe-win.exe
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 

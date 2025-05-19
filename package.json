@@ -37,7 +37,8 @@
     "test:coverage": "jest --coverage",
     "prepublishOnly": "npm run test && npm run build",
     "predeploy": "npm run test && npm run build && npm run build:bin",
-    "deploy": "npm run release && git push origin master --follow-tags"
+    "deploy": "npm run release && git push origin master --follow-tags",
+    "diff": "node -e \"require('child_process').execSync('git diff --cached ' + require('child_process').execSync('git describe --tags --abbrev=0').toString().trim() + ' > out/tag-diff.diff')\""
   },
   "dependencies": {
     "@types/node": "^22.15.18",
