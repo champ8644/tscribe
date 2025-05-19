@@ -1,6 +1,6 @@
 {
   "name": "tscribe",
-  "version": "2.0.0",
+  "version": "2.0.1",
   "description": "CLI to dump TypeScript sources with headings for LLM ingestion",
   "license": "MIT",
   "repository": {
