@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [2.1.2](https://github.com/champ8644/tscribe/compare/v2.1.1...v2.1.2) (2025-05-19)
+
+
+### Bug Fixes
+
+* **cli:** try testing release function ([95769a4](https://github.com/champ8644/tscribe/commit/95769a4be5dda83a61f0323a1d142a779cc2f909))
+
 ### [2.1.1](https://github.com/champ8644/tscribe/compare/v2.1.0...v2.1.1) (2025-05-19)
 
 ## [2.1.0](https://github.com/champ8644/tscribe/compare/v2.0.1...v2.1.0) (2025-05-19)
