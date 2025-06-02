@@ -11,13 +11,13 @@
 
 ## What is tscribe for?
 
-`tscribe` is a developer CLI tool that extracts `.ts` and `.tsx` source files from your project, transforms them into a readable Markdown structure, and outputs the result as either a plain text file or a zipped archive.  
+`tscribe` is a developer CLI tool that extracts `.ts` and `.tsx` source files from your project, transforms them into a readable Markdown structure, and outputs the result as either a plain text file or streamed to stdout.  
 It is especially useful for:
 
 - Static code analysis or documentation generation
 - Developer tooling and AI workflow integration
 
-Supports mono-repos, source indexing, and zip bundling for efficient context window management in LLMs.
+Supports mono-repos, source indexing, and flexible file filtering for efficient context window management in LLMs.
 
 ---
 
@@ -215,30 +215,29 @@ await tscribe({
 });
 ```
 
-You may omit most fields. If neither `out` nor `zip` is provided, output is sent to stdout.
+You may omit most fields. If `out` is not provided, then output is sent to stdout.
 
 ---
 
 ### Options reference
 
-| Property  | Type                           | Default                    | Description                                                                          |
-| --------- | ------------------------------ | -------------------------- | ------------------------------------------------------------------------------------ |
-| `src`     | `string`                       | `"."`                      | Root directory to scan. Relative or absolute.                                        |
-| `ext`     | `string`                       | `"ts,tsx"`                 | Comma‑separated extension, or `*` for all files.                                     |
-| `ignore`  | `string`                       | `"node_modules,dist,.git"` | Glob patterns to exclude (comma‑sep).                                                |
-| `heading` | `string`                       | _(auto)_                   | Custom heading template; `{file}` replaced by relative path.                         |
-| `format`  | `'md' \| 'plain'`              | `'md'`                     | Heading style.                                                                       |
-| `sort`    | `'alpha' \| 'path' \| 'mtime'` | `'path'`                   | File ordering.                                                                       |
-| `zip`     | `string`                       | –                          | Path to write a zip archive (`output.txt` inside). Mutually exclusive with `out`.    |
-| `out`     | `string`                       | –                          | Plain‑text output file. If neither `out` nor `zip`, output is written to **stdout**. |
-| `list`    | `boolean`                      | `false`                    | Print file list only (no concatenation).                                             |
-| `watch`   | `boolean`                      | `false`                    | Watch mode—re‑run on changes.                                                        |
-| `quiet`   | `boolean`                      | `false`                    | Suppress normal logs.                                                                |
-| `verbose` | `boolean`                      | `false`                    | Extra debug logs.                                                                    |
+| Property  | Type                           | Default                    | Description                                                                             |
+| --------- | ------------------------------ | -------------------------- | --------------------------------------------------------------------------------------- |
+| `src`     | `string`                       | `"."`                      | Root directory to scan. Relative or absolute.                                           |
+| `ext`     | `string`                       | `"ts,tsx"`                 | Comma‑separated extension, or `*` for all files.                                        |
+| `ignore`  | `string`                       | `"node_modules,dist,.git"` | Glob patterns to exclude (comma‑sep).                                                   |
+| `heading` | `string`                       | _(auto)_                   | Custom heading template; `{file}` replaced by relative path.                            |
+| `format`  | `'md' \| 'plain'`              | `'md'`                     | Heading style.                                                                          |
+| `sort`    | `'alpha' \| 'path' \| 'mtime'` | `'path'`                   | File ordering.                                                                          |
+| `out`     | `string`                       | –                          | Plain‑text output file. If `out` is not provided, then output is written to **stdout**. |
+| `list`    | `boolean`                      | `false`                    | Print file list only (no concatenation).                                                |
+| `watch`   | `boolean`                      | `false`                    | Watch mode—re‑run on changes.                                                           |
+| `quiet`   | `boolean`                      | `false`                    | Suppress normal logs.                                                                   |
+| `verbose` | `boolean`                      | `false`                    | Extra debug logs.                                                                       |
 
 ### Return value
 
-`tscribe()` returns **`Promise<void>`**. It either completes the side‑effect (write, zip, stdout) or throws an error you can catch.
+`tscribe()` returns **`Promise<void>`**. It either completes the side‑effect (write or stdout) or throws an error you can catch.
 
 ## Helper Utilities
 
